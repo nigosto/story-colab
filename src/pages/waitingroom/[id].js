@@ -1,3 +1,12 @@
+import {WebSocket} from "nextjs-websocket"
+
 export default function WaitingRoom() {
-    return <div>Waiting room</div>
+    const handleMessage = (data) => {
+        const res = JSON.parse(data);
+        console.log(res)
+    }
+
+    return <div>Waiting room
+        <WebSocket url='' onMessage={handleMessage} />
+    </div>
 }

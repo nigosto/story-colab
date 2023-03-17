@@ -1,10 +1,11 @@
 import "@/styles/globals.scss";
 import { useState } from "react";
 import { Menu, Layout } from "antd";
-import { HomeOutlined, ScheduleOutlined } from "@ant-design/icons";
+import { HomeOutlined, ScheduleOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { SessionProvider, signOut } from "next-auth/react";
 
 const { Header, Content, Footer } = Layout;
 
@@ -19,9 +20,19 @@ const items = [
     key: "/room/create",
     icon: <ScheduleOutlined />,
   },
+  {
+    label: <Link href="/auth/signin">Sign in</Link>, //TODO: make menu groups so that sign in can be to the right
+    key: "/auth/signin",
+    icon: <LoginOutlined />,
+  },
+  {
+    label: <a onClick={() => signOut()}>Sign out</a>, //TODO: make menu groups so that sign in can be to the right
+    key: "/auth/signout",
+    icon: <LogoutOutlined />,
+  }
 ];
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps: {session, ...pageProps} }) {
   const router = useRouter();
   const [current, setCurrent] = useState(router.pathname);
 
@@ -30,7 +41,7 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <>
+    <SessionProvider session={session}>
       <Head>
         <title>Story Colab</title>
         <link rel="icon" type="image/png" href="/icon.png" />
@@ -52,6 +63,6 @@ export default function App({ Component, pageProps }) {
           Story Colab ©2023 Created by Team Dangling Pointers
         </Footer>
       </Layout>
-    </>
+    </SessionProvider>
   );
 }
