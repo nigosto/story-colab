@@ -1,4 +1,5 @@
 import { Button, Form, Input, InputNumber, Typography } from "antd";
+import { getSession } from "next-auth/react";
 import Image from "next/image"
 import { useRouter } from "next/router";
 import styles from "../../styles/create.room.module.scss"
@@ -11,6 +12,7 @@ export default function CreateRoom() {
   }
 
   const handleSubmit = async (values) => {
+    const session = await getSession();
     const res = await fetch("http://localhost:3000/api/room/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -18,7 +20,8 @@ export default function CreateRoom() {
         name: values.name,
         description: values.description,
         participantsCount: values.participantsCount,
-        creator: "64145c71dded81d3ccd39642" //TODO: get user id from session
+        roles: values.roles.split(' '),
+        creator: session.user._id //TODO: get user id from session
       })
     });
 
@@ -46,6 +49,9 @@ export default function CreateRoom() {
           <Input />
         </Form.Item>
         <Form.Item label="Room Description: " name="description">
+          <Input.TextArea rows={4} />
+        </Form.Item>
+        <Form.Item label="Roles: " name="roles">
           <Input.TextArea rows={4} />
         </Form.Item>
         <Form.Item label="Number of participants: " name="participantsCount">

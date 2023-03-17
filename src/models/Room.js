@@ -48,7 +48,11 @@ const RoomSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-    }
+    },
+    roles: [{
+        type: mongoose.Schema.Types.String,
+        default: []
+    }]
 })
 
-module.exports = mongoose.models.Room || mongoose.model("Room", RoomSchema)
+export default mongoose.models.Room || mongoose.model("Room", RoomSchema)
