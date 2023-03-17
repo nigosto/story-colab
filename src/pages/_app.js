@@ -3,24 +3,28 @@ import { useState } from "react";
 import { Menu, Layout } from "antd";
 import { HomeOutlined, ScheduleOutlined } from "@ant-design/icons";
 import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const { Header, Content, Footer } = Layout;
 
 const items = [
   {
-    label: "Home",
-    key: "home",
+    label: <Link href="/">Home</Link>,
+    key: "/",
     icon: <HomeOutlined />,
   },
   {
-    label: "Create Room",
-    key: "createRoom",
+    label: <Link href="/room/create">Create Room</Link>,
+    key: "/room/create",
     icon: <ScheduleOutlined />,
   },
 ];
 
 export default function App({ Component, pageProps }) {
-  const [current, setCurrent] = useState("home");
+  const router = useRouter();
+  const [current, setCurrent] = useState(router.pathname);
+
   const onClick = (e) => {
     setCurrent(e.key);
   };
