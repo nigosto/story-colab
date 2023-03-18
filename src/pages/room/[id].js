@@ -1,10 +1,12 @@
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Select, Typography, List, Button, Form } from "antd";
+import { Select, Typography, List, Button, Form, Input } from "antd";
 import styles from "../../styles/room.module.scss";
 import { useRouter } from "next/router";
+import { MessageBox, MessageList } from "react-chat-elements";
+import "react-chat-elements/dist/main.css";
 
-let globalWs;
+let globalWs, globalSession, globalMessages = [];
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
@@ -27,6 +29,8 @@ export default function Room({ room }) {
   const [botsCount, setBotsCount] = useState(0);
   const [start, setStart] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [turn, setTurn] = useState(false);
+  const [messages, setMessages] = useState([])
   const router = useRouter();
 
   const handleMessage = async (msg) => {
@@ -34,6 +38,51 @@ export default function Room({ room }) {
     if (res.type === "added_bot") {
       setBots(res.bots);
       return;
+    }
+    if (res.type === "game_started") {
+      setStart(true);
+      return;
+    }
+    if (res.type === "turn_event") {
+      if (globalSession.user.username === res.username) {
+        setTurn(true);
+      }
+      return;
+    }
+    if(res.type === "character_line") {
+      console.log(globalSession.user._id )
+      console.log(res.user_id)
+      if (globalSession.user._id === res.user_id) {
+        setMessages([...messages, {
+          position: "right",
+          type: "text",
+          title: res.role,
+          text: res.text,
+        }])
+        globalMessages.push({
+            position: "right",
+            type: "text",
+            title: res.role,
+            text: res.text,
+          })
+      }
+      else {
+        globalMessages.push({
+          position: "left",
+          type: "text",
+          title: res.role,
+          text: res.text,
+        })
+        setMessages([...messages, {
+          position: "left",
+          type: "text",
+          title: res.role,
+          text: res.text,
+        }])
+      }
+      console.log(globalMessages)
+      console.log(messages)
+      return
     }
     setUsers(res.participants);
   };
@@ -63,6 +112,7 @@ export default function Room({ room }) {
         router.replace("/auth/signin");
       } else {
         setIsLoading(false);
+        globalSession = s;
         setSession(s);
         if (!globalWs) {
           socketInitialize();
@@ -105,6 +155,7 @@ export default function Room({ room }) {
         type: "game_started",
         room_id: room._id,
         user_id: session.user._id,
+        description: room.description,
       })
     );
 
@@ -121,6 +172,19 @@ export default function Room({ room }) {
       })
     );
     setBotsCount(botsCount + 1);
+  };
+
+  const handleCharacterLine = (values) => {
+    ws.send(
+      JSON.stringify({
+        type: "character_line",
+        room_id: room._id,
+        user_id: session.user._id,
+        text: values.text,
+        role: roles[globalSession.user._id],
+      })
+    );
+    setTurn(false);
   };
 
   if (isLoading) {
@@ -203,9 +267,90 @@ export default function Room({ room }) {
     );
   } else {
     return (
-      <Button type="primary" onClick={() => setStart(false)}>
-        Click
-      </Button>
+      <section className={styles.roomSection}>
+        <Typography.Title className={styles.pageTitle}>
+          Chat Room for {room.name}
+        </Typography.Title>
+        <div className={styles.participantsStart}>
+          <Typography.Title level={2}>Participants</Typography.Title>
+          <List
+            dataSource={users}
+            renderItem={(item) => (
+              <List.Item>
+                <span>{item.username}</span>
+                {session?.user._id === room.creator._id ? (
+                  <Button
+                    onClick={() => {
+                      ws.send(
+                        JSON.stringify({
+                          type: "turn_event",
+                          room_id: room._id,
+                          user_id: session.user._id,
+                          turn_user_id: item.user_id,
+                          username: item.username,
+                          role: roles[item.user_id],
+                        })
+                      );
+                    }}
+                    type="primary"
+                  >
+                    Give Turn
+                  </Button>
+                ) : null}
+              </List.Item>
+            )}
+          />
+        </div>
+        <div className={styles.botsStart}>
+          <Typography.Title level={2}>Bots</Typography.Title>
+          {bots.length == 0 ? null : (
+            <List
+              dataSource={bots}
+              renderItem={(b) => (
+                <List.Item>
+                  <span>{b}</span>
+                  {session?.user._id === room.creator._id ? (
+                    <Button
+                      onClick={() => {
+                        ws.send(
+                          JSON.stringify({
+                            type: "turn_event",
+                            room_id: room._id,
+                            user_id: session.user._id,
+                            turn_user_id: null,
+                            username: b,
+                            role: roles[b],
+                          })
+                        );
+                      }}
+                      type="primary"
+                    >
+                      Give Turn
+                    </Button>
+                  ) : null}
+                </List.Item>
+              )}
+            />
+          )}
+        </div>
+        <div className={styles.chat}>
+          <MessageList
+            className="message-list"
+            lockable={true}
+            toBottomHeight={"100%"}
+            dataSource={globalMessages}
+          />
+        </div>
+        <Form onFinish={handleCharacterLine} className={styles.sendMessage}>
+          <Form.Item name="text" label="text">
+            <Input />
+          </Form.Item>
+          <Button disabled={!turn} htmlType="submit" type="primary">
+            Send
+          </Button>
+        </Form>
+        {session?.user._id === room.creator._id ? <Button type="primary">End Story</Button> : null}
+      </section>
     );
   }
 }
