@@ -40,6 +40,9 @@ wss.on('connection', function connection(ws) {
   ws.on('error', console.error);
 
   ws.on('close', (code, reason) => {
+    if (!ws.participant) {
+      return;
+    }
     let participant = {
       room_id: ws.participant.room_id,
       user_id: ws.participant.user_id,
