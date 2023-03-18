@@ -1,4 +1,9 @@
+import mongoose from 'mongoose';
 import { WebSocketServer } from 'ws';
+
+import Room from "./src/models/Room.js"
+
+await mongoose.connect('mongodb://192.168.105.14:27017/story-colab');
 
 const wss = new WebSocketServer({ port: process.env.WS_PORT });
 
@@ -7,16 +12,49 @@ const wss = new WebSocketServer({ port: process.env.WS_PORT });
 let roomPool = {};
 
 const MESSAGE_HANDLER = {
-  "connection_event": function (ws, room, msg) {
+  "connection_event": async function (ws, room, msg) {
+    let participants = room.participants = room.participants ?? [];
 
+    if (participants.filter(p => p.user_id === msg.user_id).length === 0) {
+      let participant = {
+        user_id: msg.user_id,
+        room_id: msg.room_id,
+        username: msg.username,
+        wsConn: ws
+      };
+      ws.participant = participant;
 
+      participants.push(participant);
+    }
   },
+  "game_started": async function (ws, room, msg) {
+    room.details = await Room.find({ _id: msg["room_id"] });
+    console.log(room.details);
+  },
+  "disconnect": async function (ws, room, msg) {
+    console.log("disconnected", msg);
+  }
 }
 
 wss.on('connection', function connection(ws) {
   ws.on('error', console.error);
 
-  ws.on('message', function message(data) {
+  ws.on('close', (code, reason) => {
+    let participant = {
+      room_id: ws.participant.room_id,
+      user_id: ws.participant.user_id,
+      username: ws.participant.username,
+      idx: ws.participant.idx,
+    }
+    console.log('closing', code, reason, participant);
+    roomPool[participant.room_id].participants.splice(roomPool[participant.room_id].participants.findIndex(prt=>prt.user_id === participant.user_id), 1);
+    ws.emit("message", JSON.stringify({
+      ...participant,
+      "type": "disconnect"
+    }))
+  })
+
+  ws.on('message', async function message(data) {
 
     console.log("Recieved", data.toString());
 
@@ -59,16 +97,28 @@ wss.on('connection', function connection(ws) {
     }
 
     let room = roomPool[msg["room_id"]];
-
     if (!room) {
-      room = { participants: [{ ws, user_id: msg["user_id"] }] };
+      room = roomPool[msg["room_id"]] = {};
     }
 
+    try {
+      await MESSAGE_HANDLER[msg["type"]](ws, room, msg)
+    } catch (e) {
+      console.error(e, msg);
+      ws.close(1013, "Unexpected error");
+    }
+
+    msg.participants = room.participants.map(participant => {
+      let { wsConn: _, ...prt } = participant;
+      return prt;
+    });
+    let msgString = JSON.stringify(msg);
     for (let participant of room.participants) {
-      console.log("Sending", data.toString());
-      participant.ws.send(data.toString());
+      console.log("Sending", msgString, "to", participant.username);
+      participant.wsConn.send(msgString);
       // participant.ws.send(JSON.stringify(msg));
     }
+    console.log("Room", room);
   });
 });
 
