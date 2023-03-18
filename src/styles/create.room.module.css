@@ -1,0 +1,39 @@
+.createRoomSection {
+    margin-top: 3rem;
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+
+    
+}
+
+.pageTitle {
+    width: 100%;
+    padding-left: 3rem;
+}
+
+.createRoomForm {
+    flex: 0.65;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.sideImageContainer {
+    flex: 0.35;
+    display: block;
+    position: relative;
+    width: 5rem;
+
+   
+}
+
+.sideImage {
+    position: relative !important;
+    object-fit: contain;
+}
+
+.submitBtn {
+    width: 20%;
+}

@@ -1,6 +1,6 @@
 import { Form, Typography, Input, Button } from "antd";
 import Image from "next/image";
-import styles from "../../styles/signin.module.scss";
+import styles from "../../styles/signin.module.css";
 import {getSession, signIn} from "next-auth/react"
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

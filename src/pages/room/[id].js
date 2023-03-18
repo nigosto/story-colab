@@ -1,7 +1,7 @@
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Select, Typography, List, Button, Form, Input } from "antd";
-import styles from "../../styles/room.module.scss";
+import styles from "../../styles/room.module.css";
 import { useRouter } from "next/router";
 import { MessageBox, MessageList } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
