@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Configuration, OpenAIApi } from 'openai';
 import { WebSocketServer } from 'ws';
 
-// import Room from "./src/models/Room.js"
+import Room from "./src/models/Room.js"
 
 await mongoose.connect(process.env.MONGODB_URI);
 
@@ -47,21 +47,36 @@ const MESSAGE_HANDLER = {
   "added_bot": async function (ws, room, msg) {
     room["bots"] = msg["bots"];
   },
-  "character_line": async function (ws, room, msg){
+  "character_line": async function (ws, room, msg) {
+    console.log("character_line", msg);
     let role = msg["role"];
     let text = msg["text"];
-    
-    msg.turn = room.turn;
-    if ( msg["username"] !== msg.turn ) {
-      return;      
+
+    if (room['roles'][role] !== room.turn) {
+      console.log("wrong username. not your turn");
+      return;
     }
 
     let messages = room['messages'] = room['messages'] ?? [];
-    messages.push({role, text});
+    messages.push({ role, text, username: room['roles'][role] });
+    
+    msg.messages = messages;
+
+    let roomDBO = await Room.findById(msg["room_id"]);
+    if (roomDBO.messages) {
+      roomDBO.messages.push(`${role}: ${text}`);
+    }else {
+      roomDBO.messages = [`${role}: ${text}`];
+    }
+    await roomDBO.save();
   },
   "turn_event": async function (ws, room, msg) {
     let usernameForTurn = room.usernameForTurn = msg["username"];
     let roleForTurn = room.roleForTurn = msg["role"];
+
+    let roles = room["roles"] = room["roles"] ?? [];
+
+    roles[roleForTurn] = usernameForTurn;
 
     room.turn = usernameForTurn;
 
@@ -69,11 +84,10 @@ const MESSAGE_HANDLER = {
     // let userForTurnRole = roomParticipants.find(rPrt => rPrt.name === userForTurn.username)?.role;
 
     if (usernameForTurn.startsWith("Bot")) {
-      let botPrompt = room.messages ? room.messages.map(message => `${message.role}: ${message.text}`).join('\n') : "";
-      if (botPrompt.length > 0) {
-        botPrompt += '\n';
-      }
-      botPrompt += `${roleForTurn}: `;
+      let botPrompt = `${room.description} You are a ${roleForTurn}.`;
+      botPrompt += room.messages ? room.messages.map(message => `${message.role}: ${message.text}`).join('\n') : "";
+
+      botPrompt += `\n${roleForTurn}: `;
       console.log("Bot prompt '%s'", botPrompt);
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -86,6 +100,14 @@ const MESSAGE_HANDLER = {
         stop: [`${roleForTurn}:`],
       });
       console.log("Bot response '%s'", JSON.stringify(response.data.choices));
+      ws.emit('message', JSON.stringify({
+        room_id: msg.room_id,
+        user_id: msg.user_id,
+        role: roleForTurn,
+        text: response.data.choices[0].text,
+        type: "character_line"
+      }))
+
     }
   }
 }
