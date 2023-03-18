@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
+      }
+    ],
+    domains: ['oaidalleapiprodscus.blob.core.windows.net', '127.0.0.1']
+  },
   async rewrites() {
     return [
       {

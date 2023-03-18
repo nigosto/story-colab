@@ -1,4 +1,4 @@
-import "@/styles/globals.css";
+import "@/styles/globals.scss";
 import { Layout } from "antd";
 import Head from "next/head";
 import { SessionProvider } from "next-auth/react";

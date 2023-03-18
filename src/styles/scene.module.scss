@@ -1,0 +1,42 @@
+.storyPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+    margin-top: 3rem;
+
+    .imagePicker {
+        display: flex;
+        flex-wrap: wrap;
+        :not(:last-child) {
+            margin-right: 3rem;
+        }
+    
+        .aiImageContainer {
+            flex: 0.35;
+            display: block;
+            position: relative;
+            width: 30vw;
+        
+            .aiImage {
+                margin-bottom: 3rem;
+                position: relative !important;
+                object-fit: contain;
+                cursor: pointer;
+            }
+        }
+        
+    }
+}
+// .sideImageContainer {
+//     flex: 0.35;
+//     display: block;
+//     position: relative;
+//     width: 5rem;
+
+//     .sideImage {
+//         margin-bottom: 3rem;
+//         position: relative !important;
+//         object-fit: contain;
+//     }
+// }

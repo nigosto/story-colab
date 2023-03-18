@@ -5,7 +5,6 @@ export default async function handler(req, res) {
     if(req.method === 'POST') {   
         connectDB();
         const { name, description, participantsCount, creator, roles } = req.body;
-        console.log(roles)
 
         const room = await Room.create({name, description, participantsCount, creator, participants: [], roles});
 

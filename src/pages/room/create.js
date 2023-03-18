@@ -2,7 +2,7 @@ import { Button, Form, Input, InputNumber, Typography } from "antd";
 import { getSession } from "next-auth/react";
 import Image from "next/image"
 import { useRouter } from "next/router";
-import styles from "../../styles/create.room.module.css"
+import styles from "../../styles/create.room.module.scss"
 
 export default function CreateRoom() {
   const router = useRouter();

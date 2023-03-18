@@ -1,5 +1,5 @@
 import connectDB from "@/lib/database";
-import Room from "../../../../models/Room";
+import Room from "../../../../../models/Room";
 
 export default async function handler(req, res) {
     if(req.method === 'POST') {

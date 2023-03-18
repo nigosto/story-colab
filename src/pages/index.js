@@ -1,7 +1,7 @@
 // import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 // import { useEffect, useState } from "react";
-import styles from "../styles/home.module.css";
+import styles from "../styles/home.module.scss";
 import { Button, List, Typography } from "antd";
 // import Link from "next/link";
 

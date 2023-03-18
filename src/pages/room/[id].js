@@ -1,12 +1,14 @@
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Select, Typography, List, Button, Form, Input } from "antd";
-import styles from "../../styles/room.module.css";
+import styles from "../../styles/room.module.scss";
 import { useRouter } from "next/router";
 import { MessageBox, MessageList } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 
-let globalWs, globalSession, globalMessages = [];
+let globalWs,
+  globalSession,
+  globalMessages = [];
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
@@ -30,11 +32,19 @@ export default function Room({ room }) {
   const [start, setStart] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [turn, setTurn] = useState(false);
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([]);
   const router = useRouter();
 
   const handleMessage = async (msg) => {
     const res = JSON.parse(msg.data);
+    if(res.type === "end_game") {
+      if(globalSession.user._id === room.creator._id) {
+        router.replace(`/story/${room._id}`);
+      }
+      else {
+        router.replace("/")
+      }
+    }
     if (res.type === "added_bot") {
       setBots(res.bots);
       return;
@@ -49,40 +59,45 @@ export default function Room({ room }) {
       }
       return;
     }
-    if(res.type === "character_line") {
-      console.log(globalSession.user._id )
-      console.log(res.user_id)
+    if (res.type === "character_line") {
+      console.log(globalSession.user._id);
+      console.log(res.user_id);
       if (globalSession.user._id === res.user_id) {
-        setMessages([...messages, {
-          position: "right",
-          type: "text",
-          title: res.role,
-          text: res.text,
-        }])
-        globalMessages.push({
+        setMessages([
+          ...messages,
+          {
             position: "right",
             type: "text",
             title: res.role,
             text: res.text,
-          })
-      }
-      else {
+          },
+        ]);
+        globalMessages.push({
+          position: "right",
+          type: "text",
+          title: res.role,
+          text: res.text,
+        });
+      } else {
         globalMessages.push({
           position: "left",
           type: "text",
           title: res.role,
           text: res.text,
-        })
-        setMessages([...messages, {
-          position: "left",
-          type: "text",
-          title: res.role,
-          text: res.text,
-        }])
+        });
+        setMessages([
+          ...messages,
+          {
+            position: "left",
+            type: "text",
+            title: res.role,
+            text: res.text,
+          },
+        ]);
       }
-      console.log(globalMessages)
-      console.log(messages)
-      return
+      console.log(globalMessages);
+      console.log(messages);
+      return;
     }
     setUsers(res.participants);
   };
@@ -122,7 +137,7 @@ export default function Room({ room }) {
   }, []);
 
   const handleFinish = async () => {
-    await fetch(`http://localhost:3000/api/room/update/${room._id}`, {
+    await fetch(`http://localhost:3000/api/room/update/participants/${room._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -185,6 +200,16 @@ export default function Room({ room }) {
       })
     );
     setTurn(false);
+  };
+
+  const handleEndGame = () => {
+    ws.send(
+      JSON.stringify({
+        type: "end_game",
+        room_id: room._id,
+        user_id: session.user._id,
+      })
+    );
   };
 
   if (isLoading) {
@@ -349,7 +374,13 @@ export default function Room({ room }) {
             Send
           </Button>
         </Form>
-        {session?.user._id === room.creator._id ? <Button type="primary">End Story</Button> : null}
+        {session?.user._id === room.creator._id ? (
+          <Form onFinish={handleEndGame}>
+            <Button htmlType="submit" type="primary">
+              End Story
+            </Button>
+          </Form>
+        ) : null}
       </section>
     );
   }

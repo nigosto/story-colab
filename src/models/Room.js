@@ -55,7 +55,11 @@ const RoomSchema = new mongoose.Schema({
     roles: [{
         type: mongoose.Schema.Types.String,
         default: []
-    }]
+    }],
+    image: {
+        type: mongoose.Schema.Types.String,
+        default: ""
+    }
 })
 
 export default mongoose.models.Room || mongoose.model("Room", RoomSchema)
