@@ -13,7 +13,7 @@ export default function Story() {
     let image;
     let chatBubbleImg;
 
-    let bubbleX = 50, bubbleY = 50;
+    let bubbleX = window.innerWidth/2, bubbleY = window.innerHeight/2;
 
     const setup = async (p5, canvasParentRef) => {
         // if (hasCanvas) {
@@ -24,7 +24,7 @@ export default function Story() {
         // const roomRes = await fetch(`http://localhost:3000/api/room/get/${id}`);
         // const room = (await roomRes.json()).room;
         // console.log(room);
-        p5.createCanvas(500, 500).parent(canvasParentRef);
+        p5.createCanvas(window.innerWidth, window.innerHeight).parent(canvasParentRef);
         // hasCanvas = true;
         // p5.background(0);
         // p5.ellipse(50, 50, 70, 70);
@@ -39,10 +39,10 @@ export default function Story() {
 
     const draw = (p5) => {
 
-        p5.background(0);
+        p5.background(245);
         // p5.ellipse(x, y, 70, 70);
         if (image) {
-            p5.image(image, 0, 0);
+            p5.image(image, (window.innerWidth - image.width)/2, (window.innerHeight - image.height)/2);
             p5.image(chatBubbleImg, bubbleX, bubbleY, 204, 154);
             p5.text('Meow', bubbleX + 102, bubbleY + 77);
         }
@@ -60,6 +60,6 @@ export default function Story() {
 
     }
 
-    return <Sketch style={{"margin-top": "3rem"}} setup={setup} draw={draw} mouseDragged={mouseDragged} mouseClicked={mouseClicked}/>;
+    return <Sketch style={{"marginTop": "3rem"}} setup={setup} draw={draw} mouseDragged={mouseDragged} mouseClicked={mouseClicked}/>;
 
 }
