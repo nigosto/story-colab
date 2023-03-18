@@ -33,6 +33,9 @@ const RoomSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.Boolean,
             required: true,
             default: false
+        },
+        role: {
+            type: mongoose.Schema.Types.String
         }
     }],
     scene: {

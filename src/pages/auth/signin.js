@@ -1,12 +1,28 @@
 import { Form, Typography, Input, Button } from "antd";
 import Image from "next/image";
 import styles from "../../styles/signin.module.scss";
-import {signIn} from "next-auth/react"
+import {getSession, signIn} from "next-auth/react"
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function SignIn() {
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter();
+
   const loaderProp = ({ src }) => {
     return src;
   };
+
+  useEffect(() => {
+    getSession().then((session) => {
+      if(session) {
+        router.replace("/")
+      }
+      else {
+        setIsLoading(false)
+      }
+    })
+  })
 
   const handleSubmit = async (values) => {
     const res = await signIn("credentials", {
@@ -15,11 +31,13 @@ export default function SignIn() {
         password: values.password
     })
 
-    console.log(res)
-
     if(!res?.error) {
         router.push("/")
     }
+  }
+
+  if(isLoading) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -35,6 +53,7 @@ export default function SignIn() {
           maxWidth: 600,
         }}
         layout="horizontal"
+        onSubmit={(e) => {e.preventDefault()}}
         onFinish={handleSubmit}
       >
         <Form.Item
@@ -50,7 +69,7 @@ export default function SignIn() {
           name="password"
           rules={[{ required: true }]}
         >
-          <Input />
+          <Input type="password" />
         </Form.Item>
         <Button htmlType="submit" className={styles.submitBtn} type="primary">Sign in</Button>
       </Form>

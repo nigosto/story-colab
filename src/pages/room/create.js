@@ -21,13 +21,13 @@ export default function CreateRoom() {
         description: values.description,
         participantsCount: values.participantsCount,
         roles: values.roles.split(' '),
-        creator: session.user._id //TODO: get user id from session
+        creator: session.user._id
       })
     });
 
     if(res.ok) {
       const data = await res.json();
-      router.push(`/waitingroom/${data.room._id}`)
+      router.push(`/room/${data.room._id}`)
     }
   }
 
