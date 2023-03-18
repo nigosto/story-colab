@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-// import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, OpenAIApi } from 'openai';
 import { WebSocketServer } from 'ws';
 
 import Room from "./src/models/Room.js"
 
-await mongoose.connect('mongodb://localhost:27017/story-colab');
+await mongoose.connect('mongodb://192.168.105.14:27017/story-colab');
 
-// const configuration = new Configuration({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 
 const wss = new WebSocketServer({ port: process.env.WS_PORT });
