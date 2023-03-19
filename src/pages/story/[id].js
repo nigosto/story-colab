@@ -60,24 +60,7 @@ export default function Story({ messages, imageSrc, participants }) {
         chatBubbleImg = p5.loadImage(
             "https://static.vecteezy.com/system/resources/previews/001/195/458/original/speech-bubble-png.png"
         );
-        chatBubbles.push({
-          scale: 1.0,
-          bubbleX: window.innerWidth / 2 + i * 100,
-          bubbleY: window.innerHeight / 2,
-          isFlip: false,
-          messages: participantMessages,
-        });
-      }
-      draggedBubble = chatBubbles[0];
-    }
 
-    console.log("simo1", draggedBubble);
-
-    // }
-    image = p5.loadImage(imageSrc);
-    chatBubbleImg = p5.loadImage(
-      "https://static.vecteezy.com/system/resources/previews/001/195/458/original/speech-bubble-png.png"
-    );
 
         p5.textSize(24);
         p5.textAlign(p5.CENTER);
@@ -109,15 +92,7 @@ export default function Story({ messages, imageSrc, participants }) {
             }
 
         }
-        p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
-        p5.text(
-          messages[pageNum].split(": ")[1],
-          bubbleX + bubbleWidth / 2,
-          bubbleY + bubbleHeight / 2
-        );
-      }
-    }
-  };
+    };
 
     const mousePressed = (_p5, event) => {
         let mouseX = event.clientX, mouseY = event.clientY;
