@@ -1,6 +1,14 @@
 import connectDB from "@/lib/database";
 import Comics from "../../../models/Comics";
 
+export const config = {
+    api: {
+      bodyParser: {
+        sizeLimit: '10mb',
+      },
+    },
+  }
+
 export default async function handler(req, res) {
     if(req.method === 'POST') {   
         connectDB();
