@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import styles from "../../styles/scene.module.scss";
 import Image from "next/image";
-import { Button, Typography } from "antd";
+import { Button, Spin, Typography } from "antd";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -21,8 +21,6 @@ export async function getServerSideProps(context) {
     response_format: "b64_json",
   });
 
-  // console.log(response.data.data.map((img) => img.b64_json));
-
   return {
     props: {
       images: response.data.data.map((img) => `data:image/png;base64, ${img.b64_json}`)
@@ -30,9 +28,9 @@ export async function getServerSideProps(context) {
   };
 }
 
-// export default function Story() {
   export default function Story({images}) {
   const [select, setSelect] = useState(null);
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter();
 
   const loaderProp = ({ src }) => {
@@ -40,6 +38,7 @@ export async function getServerSideProps(context) {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true)
     const { id } = router.query;
     await fetch(`http://localhost:3000/api/room/update/image/${id}`, {
       method: "POST",
@@ -88,6 +87,10 @@ export async function getServerSideProps(context) {
       >
         Submit
       </Button>
+      {isLoading ? <Spin tip="Loading">
+        <div className="content" />
+      </Spin> : null}
+      
     </section>
   );
 }
