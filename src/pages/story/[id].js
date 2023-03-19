@@ -64,6 +64,7 @@ export default function Story({ messages, imageSrc, participants }) {
 
         p5.textSize(24);
         p5.textAlign(p5.CENTER);
+        // p5.textWrap(p5.WORD);
     };
 
     const draw = (p5) => {
@@ -88,7 +89,24 @@ export default function Story({ messages, imageSrc, participants }) {
                     p5.scale(1, 1);
                 }
                 p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
-                p5.text(messages[pageNum].split(': ')[1], bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
+
+                let msg = messages[pageNum].split(': ')[1];
+                let charWidth = p5.textWidth('a');
+                // Math.floor(msg.length*charWidth/bubbleWidth);
+                let wordCounter = 0;
+                let words = msg.split(' ');
+                let lines = [];
+                while (wordCounter < words.length) {
+                    let line = "";
+                    while (line.length * charWidth < bubbleWidth - 10) {
+                        line += words[wordCounter] + ' ';
+                        wordCounter++;
+                    }
+                    line += '\n';
+                    lines.push(line);
+                    line = "";
+                }
+                p5.text(msg, bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
             }
 
         }
@@ -156,7 +174,7 @@ export default function Story({ messages, imageSrc, participants }) {
             <Button
                 type="primary"
                 onClick={() => {
-                    if (pageNum < participants.length -1 ) {
+                    if (pageNum < (messages.length / participants.length) - 1) {
                         pageNum++;
                     }
                 }}>
@@ -166,7 +184,7 @@ export default function Story({ messages, imageSrc, participants }) {
             <Button
                 type="primary"
                 onClick={() => {
-                    if (pageNum > 0 ) {
+                    if (pageNum > 0) {
                         pageNum--;
                     }
                 }}>
