@@ -29,25 +29,33 @@ export default function Story({ messages, imageSrc, participants }) {
     let chatBubbles = [];
     let cnv;
     let draggedBubble;
+    let pageNum = 0;
 
     // let bubbleX = window.innerWidth / 2,
     //     bubbleY = window.innerHeight / 2;
 
     const setup = async (p5, canvasParentRef) => {
 
-        if (!cnv) {
-            console.log("simo1");
-            cnv = p5.createCanvas(window.innerWidth, window.innerHeight).parent(
-                canvasParentRef
-            );
+        // if (!cnv) {
+        console.log("simo1");
+        cnv = p5.createCanvas(window.innerWidth, window.innerHeight).parent(
+            canvasParentRef
+        );
+
+
+        if (chatBubbles.length === 0) {
             for (let i = 0; i < participants.length; i++) {
                 console.log("i", i);
-                chatBubbles.push({ scale: 1.0, bubbleX: window.innerWidth / 2 + i * 100, bubbleY: window.innerHeight / 2, isFlip: false, message: messages[i].split(': ')[1] });
+                let participantMessages = messages.filter(message => message.startsWith(participants[i].role));
+                chatBubbles.push({ scale: 1.0, bubbleX: window.innerWidth / 2 + i * 100, bubbleY: window.innerHeight / 2, isFlip: false, messages: participantMessages });
             }
             draggedBubble = chatBubbles[0];
-            console.log("simo1", draggedBubble);
 
         }
+
+        console.log("simo1", draggedBubble);
+
+        // }
         image = p5.loadImage(imageSrc);
         chatBubbleImg = p5.loadImage(
             "https://static.vecteezy.com/system/resources/previews/001/195/458/original/speech-bubble-png.png"
@@ -71,15 +79,18 @@ export default function Story({ messages, imageSrc, participants }) {
         }
 
         for (const chatBubble of chatBubbles) {
-            let { bubbleX, bubbleY, isFlip, message } = chatBubble;
+            let { bubbleX, bubbleY, isFlip, messages } = chatBubble;
 
-            if (isFlip) {
-                p5.scale(-1, 1);
-            } else {
-                p5.scale(1, 1);
+            if (messages[pageNum]) {
+                if (isFlip) {
+                    p5.scale(-1, 1);
+                } else {
+                    p5.scale(1, 1);
+                }
+                p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+                p5.text(messages[pageNum].split(': ')[1], bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
             }
-            p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
-            p5.text(message, bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
+
         }
     };
 
@@ -139,8 +150,29 @@ export default function Story({ messages, imageSrc, participants }) {
                 -
             </Button>
             <Button className={styles.flipButton} type="primary" onClick={() => {
-                draggedBubble.isFlip=!draggedBubble.isFlip;
+                draggedBubble.isFlip = !draggedBubble.isFlip;
             }}>Flip</Button>
+
+            <Button
+                type="primary"
+                onClick={() => {
+                    if (pageNum < participants.length -1 ) {
+                        pageNum++;
+                    }
+                }}>
+                Next
+            </Button>
+
+            <Button
+                type="primary"
+                onClick={() => {
+                    if (pageNum > 0 ) {
+                        pageNum--;
+                    }
+                }}>
+                Previous
+            </Button>
+
             <Sketch
                 setup={setup}
                 draw={draw}
