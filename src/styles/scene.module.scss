@@ -11,18 +11,24 @@
         :not(:last-child) {
             margin-right: 3rem;
         }
+
+        .selected {
+            box-shadow: 0 0 0 3px #0000ff;
+        }
     
         .aiImageContainer {
             flex: 0.35;
             display: block;
             position: relative;
-            width: 30vw;
+
+            :hover {
+                opacity: 0.5;
+            }
         
             .aiImage {
-                margin-bottom: 3rem;
                 position: relative !important;
                 object-fit: contain;
-                cursor: pointer;
+                cursor: pointer;   
             }
         }
         

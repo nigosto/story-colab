@@ -1,0 +1,16 @@
+.storyPage {
+    position: relative;
+    .resizePlus {
+        position: absolute;
+        top: 0; left: 0;
+    }
+    .resizeMinus {
+        position: absolute;
+        top: 0; left: 50px;
+    }
+    .flipButton {
+        position: absolute;
+        top: 0;
+        left: 100px;
+    }
+}

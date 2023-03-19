@@ -37,12 +37,11 @@ export default function Room({ room }) {
 
   const handleMessage = async (msg) => {
     const res = JSON.parse(msg.data);
-    if(res.type === "end_game") {
-      if(globalSession.user._id === room.creator._id) {
-        router.replace(`/story/${room._id}`);
-      }
-      else {
-        router.replace("/")
+    if (res.type === "end_game") {
+      if (globalSession.user._id === room.creator._id) {
+        router.replace(`/scene/${room._id}`);
+      } else {
+        router.replace("/");
       }
     }
     if (res.type === "added_bot") {
@@ -60,41 +59,21 @@ export default function Room({ room }) {
       return;
     }
     if (res.type === "character_line") {
-      console.log(globalSession.user._id);
-      console.log(res.user_id);
-      if (globalSession.user._id === res.user_id) {
-        setMessages([
-          ...messages,
-          {
-            position: "right",
-            type: "text",
-            title: res.role,
-            text: res.text,
-          },
-        ]);
-        globalMessages.push({
-          position: "right",
-          type: "text",
-          title: res.role,
-          text: res.text,
-        });
-      } else {
-        globalMessages.push({
+      globalMessages.push({
+        position: "left",
+        type: "text",
+        title: res.role,
+        text: res.text,
+      });
+      setMessages([
+        ...messages,
+        {
           position: "left",
           type: "text",
           title: res.role,
           text: res.text,
-        });
-        setMessages([
-          ...messages,
-          {
-            position: "left",
-            type: "text",
-            title: res.role,
-            text: res.text,
-          },
-        ]);
-      }
+        },
+      ]);
       console.log(globalMessages);
       console.log(messages);
       return;
@@ -103,7 +82,7 @@ export default function Room({ room }) {
   };
 
   const socketInitialize = () => {
-    globalWs = new WebSocket("ws://192.168.105.131:5000");
+    globalWs = new WebSocket("ws://localhost:5000");
     setWS(globalWs);
     globalWs.onerror = (err) => console.error(err);
     globalWs.onopen = async () => {
@@ -137,33 +116,36 @@ export default function Room({ room }) {
   }, []);
 
   const handleFinish = async () => {
-    await fetch(`http://localhost:3000/api/room/update/participants/${room._id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        participants: users
-          .map((u) => {
-            return {
-              name: u.username,
-              isBot: false,
-              image: "none",
-              storyteller: u.user_id === room.creator._id,
-              role: roles[u.user_id],
-            };
-          })
-          .concat(
-            bots.map((b) => {
+    await fetch(
+      `http://localhost:3000/api/room/update/participants/${room._id}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          participants: users
+            .map((u) => {
               return {
-                name: b,
-                isBot: true,
+                name: u.username,
+                isBot: false,
                 image: "none",
-                storyteller: false,
-                role: roles[b],
+                storyteller: u.user_id === room.creator._id,
+                role: roles[u.user_id],
               };
             })
-          ),
-      }),
-    });
+            .concat(
+              bots.map((b) => {
+                return {
+                  name: b,
+                  isBot: true,
+                  image: "none",
+                  storyteller: false,
+                  role: roles[b],
+                };
+              })
+            ),
+        }),
+      }
+    );
 
     ws.send(
       JSON.stringify({
@@ -233,6 +215,7 @@ export default function Room({ room }) {
                   <span>{item.username}</span>
                   {session?.user._id === room.creator._id ? (
                     <Select
+                      placeholder="Select role"
                       className={styles.selectRoles}
                       onChange={(value) => {
                         setRoles({ ...roles, [item.user_id]: value });
@@ -256,6 +239,8 @@ export default function Room({ room }) {
                     <span>{b}</span>
                     {session?.user._id === room.creator._id ? (
                       <Select
+                        placeholder="Select role"
+                        className={styles.selectRoles}
                         onChange={(value) => {
                           setRoles({ ...roles, [b]: value });
                         }}
@@ -302,7 +287,9 @@ export default function Room({ room }) {
             dataSource={users}
             renderItem={(item) => (
               <List.Item>
-                <span>{item.username}</span>
+                <span>
+                  {item.username} - {roles[item.user_id]}
+                </span>
                 {session?.user._id === room.creator._id ? (
                   <Button
                     onClick={() => {
@@ -333,7 +320,9 @@ export default function Room({ room }) {
               dataSource={bots}
               renderItem={(b) => (
                 <List.Item>
-                  <span>{b}</span>
+                  <span>
+                    {b} - {roles[b]}
+                  </span>
                   {session?.user._id === room.creator._id ? (
                     <Button
                       onClick={() => {
@@ -367,8 +356,8 @@ export default function Room({ room }) {
           />
         </div>
         <Form onFinish={handleCharacterLine} className={styles.sendMessage}>
-          <Form.Item name="text" label="text">
-            <Input />
+          <Form.Item name="text" label="Message: ">
+            <Input placeholder="Enter your line" />
           </Form.Item>
           <Button disabled={!turn} htmlType="submit" type="primary">
             Send
