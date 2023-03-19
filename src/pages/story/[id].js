@@ -22,15 +22,13 @@ export async function getServerSideProps(context) {
 }
 
 export default function Story({ messages, imageSrc, participants }) {
-  console.log(imageSrc);
-  let bubbleWidth = 204;
-  let bubbleHeight = 154;
-  let image;
-  let chatBubbleImg;
-  let chatBubbles = [];
-  let cnv;
-  let draggedBubble;
-  let globalP5 = null;
+    let bubbleWidth = 204;
+    let bubbleHeight = 154;
+    let image;
+    let chatBubbleImg;
+    let chatBubbles = [];
+    let cnv;
+    let draggedBubble;
 
   // let bubbleX = window.innerWidth / 2,
   //     bubbleY = window.innerHeight / 2;
@@ -44,25 +42,24 @@ export default function Story({ messages, imageSrc, participants }) {
       .createCanvas(window.innerWidth, window.innerHeight)
       .parent(canvasParentRef);
 
-      if (chatBubbles.length === 0) {
-      for (let i = 0; i < participants.length; i++) {
-        console.log("i", i);
-        chatBubbles.push({
-          scale: 1.0,
-          bubbleX: window.innerWidth / 2 -i * 300,
-          bubbleY: window.innerHeight / 2,
-          isFlip: false,
-          message: messages[i].split(": ")[1],
-        });
-      }
-      draggedBubble = chatBubbles[0];
-    }
+        if (!cnv) {
+            console.log("simo1");
+            cnv = p5.createCanvas(window.innerWidth, window.innerHeight).parent(
+                canvasParentRef
+            );
+            for (let i = 0; i < participants.length; i++) {
+                console.log("i", i);
+                chatBubbles.push({ scale: 1.0, bubbleX: window.innerWidth / 2 + i * 100, bubbleY: window.innerHeight / 2, isFlip: false, message: messages[i].split(': ')[1] });
+            }
+            draggedBubble = chatBubbles[0];
+            console.log("simo1", draggedBubble);
 
-    // }
-    image = p5.loadImage(imageSrc);
-    chatBubbleImg = p5.loadImage(
-      "https://static.vecteezy.com/system/resources/previews/001/195/458/original/speech-bubble-png.png"
-    );
+        }
+        image = p5.loadImage(imageSrc);
+        chatBubbleImg = p5.loadImage(
+            "https://static.vecteezy.com/system/resources/previews/001/195/458/original/speech-bubble-png.png"
+        );
+
 
     p5.textSize(24);
     p5.textAlign(p5.CENTER);
@@ -80,18 +77,18 @@ export default function Story({ messages, imageSrc, participants }) {
       );
     }
 
-    for (const chatBubble of chatBubbles) {
-      let { bubbleX, bubbleY, isFlip, message } = chatBubble;
+        for (const chatBubble of chatBubbles) {
+            let { bubbleX, bubbleY, isFlip, message } = chatBubble;
 
-      if (isFlip) {
-        p5.scale(-1, 1);
-      } else {
-        p5.scale(1, 1);
-      }
-      p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
-      p5.text(message, bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
-    }
-  };
+            if (isFlip) {
+                p5.scale(-1, 1);
+            } else {
+                p5.scale(1, 1);
+            }
+            p5.image(chatBubbleImg, bubbleX, bubbleY, bubbleWidth, bubbleHeight);
+            p5.text(message, bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
+        }
+    };
 
   const mousePressed = (_p5, event) => {
     let mouseX = event.clientX,
@@ -128,35 +125,38 @@ export default function Story({ messages, imageSrc, participants }) {
     draggedBubble.bubbleY = mouseY - draggedBubble.deltaY;
   };
 
-  return (
-    <section className={styles.storyPage}>
-      <Button
-        className={styles.resizePlus}
-        type="primary"
-        onClick={() => {
-          bubbleWidth = bubbleWidth * 1.2;
-          bubbleHeight = bubbleHeight * 1.2;
-        }}
-      >
-        +
-      </Button>
-      <Button
-        className={styles.resizeMinus}
-        type="primary"
-        danger
-        onClick={() => {
-          bubbleWidth = bubbleWidth * 0.8;
-          bubbleHeight = bubbleHeight * 0.8;
-        }}
-      >
-        -
-      </Button>
-      <Sketch
-        setup={setup}
-        draw={draw}
-        mouseDragged={mouseDragged}
-        mousePressed={mousePressed}
-      />
-    </section>
-  );
+    return (
+        <section className={styles.storyPage}>
+            <Button
+                className={styles.resizePlus}
+                type="primary"
+                onClick={() => {
+                    bubbleWidth = bubbleWidth * 1.2;
+                    bubbleHeight = bubbleHeight * 1.2;
+                }}
+            >
+                +
+            </Button>
+            <Button
+                className={styles.resizeMinus}
+                type="primary"
+                danger
+                onClick={() => {
+                    bubbleWidth = bubbleWidth * 0.8;
+                    bubbleHeight = bubbleHeight * 0.8;
+                }}
+            >
+                -
+            </Button>
+            <Button className={styles.flipButton} type="primary" onClick={() => {
+                draggedBubble.isFlip=!draggedBubble.isFlip;
+            }}>Flip</Button>
+            <Sketch
+                setup={setup}
+                draw={draw}
+                mouseDragged={mouseDragged}
+                mousePressed={mousePressed}
+            />
+        </section>
+    );
 }
