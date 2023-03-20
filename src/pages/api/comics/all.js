@@ -3,7 +3,7 @@ import Comics from "../../../models/Comics";
 
 export default async function handler(req, res) {
     connectDB();
-    const comicses = await Comics.find();
+    const comicses = await Comics.find().populate("room");
     res.status(200).json({
         message: "Comicses fetched successfully!",
         comicses

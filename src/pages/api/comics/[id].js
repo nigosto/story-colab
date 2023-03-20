@@ -1,5 +1,5 @@
 import connectDB from "@/lib/database";
-import Comics from "../../../../models/Comics";
+import Comics from "../../../models/Comics"
 
 export default async function handler(req, res) {
     connectDB();

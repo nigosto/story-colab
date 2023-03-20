@@ -69,7 +69,7 @@ export default function Story({ messages, imageSrc, participants, id }) {
         );
 
 
-        p5.textSize(24);
+        p5.textSize(20);
         p5.textAlign(p5.CENTER);
         // p5.textWrap(p5.WORD);
     };
@@ -105,7 +105,10 @@ export default function Story({ messages, imageSrc, participants, id }) {
                 let lines = [];
                 while (wordCounter < words.length) {
                     let line = "";
-                    while (line.length * charWidth < bubbleWidth - 10) {
+                    while (line.length * charWidth < bubbleWidth - 10 - charWidth*2) {
+                      if(!words[wordCounter]) {
+                        break;
+                      }
                         line += words[wordCounter] + ' ';
                         wordCounter++;
                     }
@@ -113,7 +116,7 @@ export default function Story({ messages, imageSrc, participants, id }) {
                     lines.push(line);
                     line = "";
                 }
-                p5.text(msg, bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2);
+                p5.text(lines.join(), bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight / 2 - (lines.length * charWidth)*1.5);
             }
 
         }
@@ -165,7 +168,7 @@ export default function Story({ messages, imageSrc, participants, id }) {
         })
       })
       
-      router.replace("/")
+      router.replace("/comics/all")
     }
 
     return (

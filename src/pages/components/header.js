@@ -37,6 +37,9 @@ export default function PageHeader() {
           <Menu.Item key="/room/create" icon={<ScheduleOutlined />}>
             <Link href="/room/create">Create Room</Link>
           </Menu.Item>
+          <Menu.Item key="/comics/all" icon={<ScheduleOutlined />}>
+            <Link href="/comics/all">View Comicses</Link>
+          </Menu.Item>
         </Menu.ItemGroup>
         <Menu.ItemGroup>
           {session ? (

@@ -82,7 +82,7 @@ export default function Room({ room }) {
   };
 
   const socketInitialize = () => {
-    globalWs = new WebSocket("ws://localhost:5000");
+    globalWs = new WebSocket("ws://192.168.105.131:5000");
     setWS(globalWs);
     globalWs.onerror = (err) => console.error(err);
     globalWs.onopen = async () => {
@@ -116,6 +116,7 @@ export default function Room({ room }) {
   }, []);
 
   const handleFinish = async () => {
+    console.log('send update')
     await fetch(
       `http://localhost:3000/api/room/update/participants/${room._id}`,
       {
@@ -357,7 +358,7 @@ export default function Room({ room }) {
         </div>
         <Form onFinish={handleCharacterLine} className={styles.sendMessage}>
           <Form.Item name="text" label="Message: ">
-            <Input placeholder="Enter your line" />
+            <Input.TextArea rows={3} placeholder="Enter your line" />
           </Form.Item>
           <Button disabled={!turn} htmlType="submit" type="primary">
             Send

@@ -1,0 +1,51 @@
+.comicsesPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    :not(:last-child) {
+        margin-bottom: 2rem;
+    }
+
+    .pageTitle {
+        margin-top: 3rem;
+    }
+
+    .imageContainer {
+        display: block;
+        position: relative;
+        width: 768px;
+        height: 768px;
+
+        .image {
+            position: relative !important;
+            object-fit: contain;
+            cursor: pointer;
+        }
+    }
+}
+
+.listItem {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.comicsPage {
+    display: flex;
+    flex-wrap: wrap;
+
+    .imageContainer {
+        display: block;
+        position: relative;
+        width: 1846px;
+        height: 911px;
+        
+        .image {
+            position: relative !important;
+            object-fit: contain;
+            cursor: pointer;
+        }
+    }
+}
